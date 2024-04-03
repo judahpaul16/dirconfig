@@ -1,0 +1,14 @@
+
+# destination is relative to the source folder
+# ./ for current directory
+# ../ for parent directory
+# start with / for root directory
+tasks:
+  - name: Organize Downloads
+    type: file-organization
+    source: ./
+    rules: 
+      - extension: .jpg
+        destination: /images
+      - extension: .pdf
+        destination: /documents
