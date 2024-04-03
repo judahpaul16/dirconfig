@@ -1,16 +1,15 @@
-import os
-import sys
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
+from pathlib import Path
+import argparse
 import signal
 import shutil
-import argparse
-from pathlib import Path
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 import yaml
+import sys
+import os
 
 observer = None
 PID_FILE = 'dirconfig.pid'
-ROOT_DIR = str(Path(__file__).resolve().parent)
 
 class ChangeHandler(FileSystemEventHandler):
     def __init__(self, tasks):
@@ -27,22 +26,22 @@ def load_config(config_path):
 
 def organize_files(task):
     source = task['source']
-    if source.startswith("."):
-        source_path = ROOT_DIR
-    else:
-        source_path = os.path.abspath(source)
+    # Use the current working directory as the base for relative paths.
+    cwd = os.getcwd()
+    
+    # If the source is a relative path, resolve it based on the current working directory.
+    source_path = os.path.abspath(os.path.join(cwd, source)) if source.startswith(".") else os.path.abspath(source)
     
     rules = task['rules']
     
     for file in os.listdir(source_path):
         for rule in rules:
             if file.endswith(rule['extension']):
-                # Correctly resolve destination path
+                # For destination paths starting with "/", treat them as absolute paths.
+                # Otherwise, treat as relative to the source directory.
                 if rule['destination'].startswith("/"):
-                    # Treat as an absolute path
                     dest_path = os.path.abspath(rule['destination'][1:])
                 else:
-                    # Treat as a relative path from source
                     dest_path = os.path.abspath(os.path.join(source_path, rule['destination']))
                 
                 if not os.path.exists(dest_path):
@@ -102,10 +101,17 @@ def stop_daemon():
 def main():
     parser = argparse.ArgumentParser(description='dirconfig Daemon')
     parser.add_argument('action', choices=['start', 'stop'], help='Start or stop the daemon')
+    # Default to 'config.yaml' in the current working directory if not specified
+    parser.add_argument('--config', help='Path to the configuration file', default='config.yaml')
     args = parser.parse_args()
 
+    # Resolve the absolute path of the configuration file
+    config_path = os.path.abspath(args.config)
+
     if args.action == 'start':
-        config_path = os.path.join(ROOT_DIR, 'config.yaml')
+        if not os.path.exists(config_path):
+            print(f"Configuration file not found: {config_path}")
+            sys.exit(1)
         start_daemon(config_path)
     elif args.action == 'stop':
         stop_daemon()

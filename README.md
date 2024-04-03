@@ -40,7 +40,7 @@ tasks:
 To initiate **dirconfig** and begin the monitoring process, use the following command:
 
 ```sh
-python -m dirconfig start
+dirconfig start
 ```
 
 This command starts **dirconfig**, which then operates in the background. It will watch the source directories specified in your `config.yml` for any changes, organizing files according to your predefined rules.
@@ -50,7 +50,7 @@ This command starts **dirconfig**, which then operates in the background. It wil
 To stop the **dirconfig** daemon, execute:
 
 ```sh
-python -m dirconfig stop
+dirconfig stop
 ```
 
 This command stops the background process of **dirconfig**, halting the monitoring and file organization tasks.
