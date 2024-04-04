@@ -1,3 +1,4 @@
+import logging
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from pathlib import Path
@@ -10,6 +11,10 @@ import os
 
 observer = None
 PID_FILE = 'dirconfig.pid'
+LOG_FILE = 'dirconfig.log'
+
+# Set up logging configuration
+logging.basicConfig(filename=LOG_FILE, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class ChangeHandler(FileSystemEventHandler):
     def __init__(self, tasks):
@@ -18,42 +23,42 @@ class ChangeHandler(FileSystemEventHandler):
     def on_any_event(self, event):
         for task in self.tasks:
             if task['type'] == 'file-organization':
-                organize_files(task)
+                self.organize_files(task)
+
+    def organize_files(self, task):
+        source = task['source']
+        # Use the current working directory as the base for relative paths.
+        cwd = os.getcwd()
+
+        # If the source is a relative path, resolve it based on the current working directory.
+        source_path = os.path.abspath(os.path.join(cwd, source)) if source.startswith(".") else os.path.abspath(source)
+
+        rules = task['rules']
+
+        for file in os.listdir(source_path):
+            for rule in rules:
+                if file.endswith(rule['extension']):
+                    # For destination paths starting with "/", treat them as absolute paths.
+                    # Otherwise, treat as relative to the source directory.
+                    if rule['destination'].startswith("/"):
+                        dest_path = os.path.abspath(rule['destination'][1:])
+                    else:
+                        dest_path = os.path.abspath(os.path.join(source_path, rule['destination']))
+
+                    if not os.path.exists(dest_path):
+                        os.makedirs(dest_path)
+
+                    source_file_path = os.path.join(source_path, file)
+                    dest_file_path = os.path.join(dest_path, file)
+                    shutil.move(source_file_path, dest_file_path)
+                    logging.info(f"Moved: {file} -> {dest_file_path}")
 
 def load_config(config_path):
     with open(config_path, 'r') as file:
         return yaml.safe_load(file)
 
-def organize_files(task):
-    source = task['source']
-    # Use the current working directory as the base for relative paths.
-    cwd = os.getcwd()
-    
-    # If the source is a relative path, resolve it based on the current working directory.
-    source_path = os.path.abspath(os.path.join(cwd, source)) if source.startswith(".") else os.path.abspath(source)
-    
-    rules = task['rules']
-    
-    for file in os.listdir(source_path):
-        for rule in rules:
-            if file.endswith(rule['extension']):
-                # For destination paths starting with "/", treat them as absolute paths.
-                # Otherwise, treat as relative to the source directory.
-                if rule['destination'].startswith("/"):
-                    dest_path = os.path.abspath(rule['destination'][1:])
-                else:
-                    dest_path = os.path.abspath(os.path.join(source_path, rule['destination']))
-                
-                if not os.path.exists(dest_path):
-                    os.makedirs(dest_path)
-                
-                source_file_path = os.path.join(source_path, file)
-                dest_file_path = os.path.join(dest_path, file)
-                shutil.move(source_file_path, dest_file_path)
-                print(f"Moved: {file} -> {dest_file_path}")
-
 def signal_handler(signum, frame):
-    print("\nReceived interrupt signal. Stopping dirconfig...")
+    logging.info("\nReceived interrupt signal. Stopping dirconfig...")
     if observer is not None:
         observer.stop()
         observer.join()  # Ensure all threads are joined
@@ -92,10 +97,10 @@ def stop_daemon():
             pid = int(f.read())
         os.kill(pid, signal.SIGTERM)
     except FileNotFoundError:
-        print("Error: PID file not found. Is the daemon running?")
+        logging.error("Error: PID file not found. Is the daemon running?")
         sys.exit(1)
     except ProcessLookupError:
-        print("Error: Process not found. It may have been stopped already.")
+        logging.error("Error: Process not found. It may have been stopped already.")
         sys.exit(1)
 
 def main():
@@ -110,7 +115,7 @@ def main():
 
     if args.action == 'start':
         if not os.path.exists(config_path):
-            print(f"Configuration file not found: {config_path}")
+            logging.error(f"Configuration file not found: {config_path}")
             sys.exit(1)
         start_daemon(config_path)
     elif args.action == 'stop':
