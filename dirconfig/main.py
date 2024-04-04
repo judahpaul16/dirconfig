@@ -2,6 +2,7 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from pathlib import Path
 import argparse
+import logging
 import signal
 import shutil
 import yaml
@@ -51,9 +52,11 @@ def organize_files(task):
                 dest_file_path = os.path.join(dest_path, file)
                 shutil.move(source_file_path, dest_file_path)
                 print(f"Moved: {file} -> {dest_file_path}")
+                logging.info(f"Moved: {file} -> {dest_file_path}")
 
 def signal_handler(signum, frame):
     print("\nReceived interrupt signal. Stopping dirconfig...")
+    logging.info("Received interrupt signal. Stopping dirconfig...")
     if observer is not None:
         observer.stop()
         observer.join()  # Ensure all threads are joined
@@ -93,9 +96,11 @@ def stop_daemon():
         os.kill(pid, signal.SIGTERM)
     except FileNotFoundError:
         print("Error: PID file not found. Is the daemon running?")
+        logging.error("Error: PID file not found. Is the daemon running?")
         sys.exit(1)
     except ProcessLookupError:
         print("Error: Process not found. It may have been stopped already.")
+        logging.error("Error: Process not found. It may have been stopped already.")
         sys.exit(1)
 
 def main():
@@ -103,14 +108,19 @@ def main():
     parser.add_argument('action', choices=['start', 'stop'], help='Start or stop the daemon')
     # Default to 'config.yaml' in the current working directory if not specified
     parser.add_argument('--config', help='Path to the configuration file', default='config.yaml')
+    parser.add_argument('--log', help='Path to the log file', default='dirconfig.log')
     args = parser.parse_args()
 
     # Resolve the absolute path of the configuration file
     config_path = os.path.abspath(args.config)
 
+    # Initialize logging to log to a file specified by the --log argument.
+    logging.basicConfig(level=logging.INFO, filename=args.log, filemode='a', format='%(asctime)s - %(levelname)s - %(message)s')
+
     if args.action == 'start':
         if not os.path.exists(config_path):
             print(f"Configuration file not found: {config_path}")
+            logging.error(f"Configuration file not found: {config_path}")
             sys.exit(1)
         start_daemon(config_path)
     elif args.action == 'stop':

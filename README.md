@@ -1,4 +1,4 @@
-# dirconfig :open_file_folder:
+# dirconfig 📂
  Configure what files should be in what folders using an easy-to-read YAML config file.
 
 ## Features
@@ -44,6 +44,12 @@ dirconfig start
 ```
 
 This command starts **dirconfig**, which then operates in the background. It will watch the source directories specified in your `config.yml` for any changes, organizing files according to your predefined rules.
+
+To run **dirconfig** as a separate process, use the following command:
+
+```sh
+dirconfig start &
+```
 
 ### Stopping dirconfig
 
