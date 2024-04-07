@@ -1,6 +1,11 @@
 # dirconfig 📂
  Configure what files should be in what folders using an easy-to-read YAML config file.
 
+![PyPI](https://img.shields.io/pypi/v/dirconfig)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dirconfig)
+![PyPI - License](https://img.shields.io/pypi/l/dirconfig)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/judahpaul16/dirconfig/workflow.yaml)
+
 ## Features
 
 - **File Organization**: Automatically move files based on their extension from one directory to another.
