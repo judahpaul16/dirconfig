@@ -63,11 +63,16 @@ def test_organize_files(setup_test_env):
     Tests the organize_files function to verify it correctly organizes files
     according to the specified rules in the configuration.
     """
-    config = load_config('config.yaml')
+    config_path = os.path.join(setup_test_env, 'config.yaml')
+    config = load_config(config_path)
     for task in config['tasks']:
         if task['type'] == 'file-organization':
             organize_files(task)
 
+    # Use the setup_test_env path to build the correct assertion paths
+    text_file_path = os.path.join(setup_test_env, 'test_source', 'text_files', 'test.txt')
+    image_file_path = os.path.join(setup_test_env, 'test_source', 'images', 'image.jpg')
+
     # Check if the files have been moved to the correct destinations
-    assert os.path.exists('text_files/test.txt'), "Text file should be moved to 'text_files'"
-    assert os.path.exists('images/image.jpg'), "Image file should be moved to 'images'"
+    assert os.path.exists(text_file_path), "Text file should be moved to 'text_files'"
+    assert os.path.exists(image_file_path), "Image file should be moved to 'images'"
