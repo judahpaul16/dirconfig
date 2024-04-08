@@ -3,7 +3,7 @@ import pytest
 import tempfile
 import shutil
 from unittest.mock import patch
-from ..dirconfig.main import load_config, organize_files, start_daemon, stop_daemon, ChangeHandler
+from dirconfig.main import load_config, organize_files, start_daemon, stop_daemon, ChangeHandler
 
 TEST_CONFIG = """
 tasks:
