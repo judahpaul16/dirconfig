@@ -40,6 +40,12 @@ tasks:
 
 **dirconfig** is designed to run as a daemon, monitoring specified directories and automatically organizing files according to the configurations defined in your `config.yml` file.
 
+You can generate a sample `config.yml` file using the following command:
+
+```sh
+dirconfig generate
+```
+
 ### Starting dirconfig
 
 To initiate **dirconfig** and begin the monitoring process, use the following command:

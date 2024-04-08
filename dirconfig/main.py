@@ -109,10 +109,11 @@ def stop_daemon():
 
 def main():
     parser = argparse.ArgumentParser(description='dirconfig Daemon')
-    parser.add_argument('action', choices=['start', 'stop'], help='Start or stop the daemon')
+    parser.add_argument('action', choices=['start', 'stop', 'generate'], help='Dirconfig actions to perform')
     # Default to 'config.yaml' in the current working directory if not specified
     parser.add_argument('--config', help='Path to the configuration file', default='config.yaml')
     parser.add_argument('--log', help='Path to the log file', default='dirconfig.log')
+    parser.add_argument('--pid', help='Path to the PID file', default='dirconfig.pid')
     args = parser.parse_args()
 
     # Resolve the absolute path of the configuration file
@@ -129,6 +130,11 @@ def main():
         start_daemon(config_path)
     elif args.action == 'stop':
         stop_daemon()
+    elif args.action == 'generate':
+        with open('config.yaml', 'w') as f:
+            f.write("tasks:\n  - type: file-organization\n    source: './source'\n    rules:\n      - extension: .pdf, .doc, .docx\n        destination: 'documents'\n      - extension: .jpg, .jpeg\n        destination: 'images'\n")
+        print("Sample configuration file generated: config.yaml")
+        logging.info("Sample configuration file generated: config.yaml")
 
 if __name__ == "__main__":
     main()
