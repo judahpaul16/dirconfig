@@ -44,7 +44,7 @@ jobs:
           pytest
 
       - name: Bump patch version
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/main'
         run: |
           pip install bump2version
           bump2version patch
@@ -67,7 +67,7 @@ jobs:
   publish-testpypi:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
@@ -88,7 +88,7 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'release' && github.event.action == 'created'
+    if: github.event_name == 'release'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v4

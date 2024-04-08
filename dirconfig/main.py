@@ -36,8 +36,12 @@ def organize_files(task):
     rules = task['rules']
     
     for file in os.listdir(source_path):
+        file_extension = os.path.splitext(file)[1]
+        
         for rule in rules:
-            if file.endswith(rule['extension']):
+            extensions = [ext.strip() for ext in rule['extension'].split(',')]
+            
+            if file_extension in extensions:
                 # For destination paths starting with "/", treat them as absolute paths.
                 # Otherwise, treat as relative to the source directory.
                 if rule['destination'].startswith("/"):
