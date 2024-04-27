@@ -9,9 +9,9 @@
 
 ## Features
 
-- **File Organization**: Automatically move files based on their extension from one directory to another.
-- **Notification System** (Future Feature): Get notified regarding specific events specified in the configuration file.
-- **Automated Backups** (Future Feature): Set up scheduled backups for important directories.
+- [x] **File Organization**: Automatically move files based on their extension from one directory to another.
+- [x] **Automated Backups**: Set up scheduled backups for important directories using [urbackup](https://github.com/uroni/urbackup-server-python-web-api-wrapper).
+- [ ] **Notification System**: Get notified regarding specific events specified in the configuration file.
 
 ## Installation
 
@@ -35,6 +35,18 @@ tasks:
         destination: /path/to/your/destination/for/images
       - extension: .pdf
         destination: /path/to/your/destination/for/documents
+backup:
+  - name: Backup Important Files
+    type: incremental-file # incremental-image, full-file, full-image
+    schedule: daily # weekly, monthly
+    retention: 7 # number of days to keep backups
+    connection:
+      server: http://your-backup-server:55414
+      username: foo
+      password: bar
+    directories:
+      - /path/to/your/important/directory
+      - /path/to/another/important/directory
 ```
 
 ## Usage
@@ -97,6 +109,47 @@ For long-term operation or deployment, integrating **dirconfig** with system ser
 ## Extending dirconfig
 
 **dirconfig** welcomes enhancements and customization. If you're interested in adding new features or improving the tool, consider contributing to the source code. Your input and contributions are highly appreciated.
+
+## Urbackup Documentation
+For more information on the Urbackup API, please refer to these resources:
+* *[Urbackup Python API Wrapper](https://github.com/uroni/urbackup-server-python-web-api-wrapper)*
+* *[Urbackup Backend ClientCTL](https://github.com/uroni/urbackup_backend/tree/dev/clientctl)*
+
+Command Line Options for `urbackupclientctl` are as follows:
+```sh
+USAGE:
+
+        urbackupclientctl [--help] [--version] <command> [<args>]
+
+Get specific command help with urbackupclientctl <command> --help
+
+        urbackupclientctl start
+                Start an incremental/full image/file backup
+
+        urbackupclientctl status
+                Get current backup status
+
+        urbackupclientctl browse
+                Browse backups and files/folders in backups
+
+        urbackupclientctl restore-start
+                Restore files/folders from backup
+
+        urbackupclientctl set-settings
+                Set backup settings
+
+        urbackupclientctl reset-keep
+                Reset keeping files during incremental backups
+
+        urbackupclientctl add-backupdir
+                Add new directory to backup set
+
+        urbackupclientctl list-backupdirs
+                List directories that are being backed up
+
+        urbackupclientctl remove-backupdir
+                Remove directory from backup set
+```
 
 ## License
 

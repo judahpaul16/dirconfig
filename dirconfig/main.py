@@ -1,16 +1,22 @@
+from urbackup_api import urbackup_server, installer_os
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
-from pathlib import Path
+from threading import Thread, Event
+import subprocess
 import argparse
 import logging
 import signal
 import shutil
+import time
 import yaml
 import sys
 import os
 
+# Global variables
 observer = None
-PID_FILE = 'dirconfig.pid'
+backup_thread = None # Thread for backup scheduling
+shutdown_event = Event()  # Event to signal shutdown to backup thread
+PID_FILE = 'dirconfig.pid' # Default PID file path
 
 class ChangeHandler(FileSystemEventHandler):
     def __init__(self, tasks):
@@ -68,19 +74,94 @@ def signal_handler(signum, frame):
             os.remove(PID_FILE)
         sys.exit(0)
 
+def check_and_install_urbackup_client(backup_config):
+    stdout, stderr, returncode = subprocess.run(["urbackupclientctl", "status"], capture_output=True, text=True)
+    if returncode != 0:
+        print("UrBackup client not running. Attempting installation...")
+        logging.info("UrBackup client not running. Attempting installation...")
+        # Determine OS type for choosing the correct installer
+        os_type = installer_os.Linux if os.name != 'nt' else installer_os.Windows
+        installer_filename = "urbackup_client_installer" + (".exe" if os_type == installer_os.Windows else "")
+        backup_server = urbackup_server(
+            server_url=backup_config['connection']['server'],
+            server_username=backup_config['connection']['username'],
+            server_password=backup_config['connection']['password']
+        )
+        if backup_server.login():
+            client_name = f"{backup_config['name']}-dirconfig"
+            if backup_server.download_installer(installer_filename, client_name, os_type):
+                if os.name != 'nt':
+                    subprocess.run(["chmod", "+x", installer_filename])  # Make executable on Unix/Linux
+                subprocess.run([f"./{installer_filename}"])  # Execute installer
+                print("Installation successful.")
+                logging.info("Installation successful.")
+            else:
+                print("Failed to download installer.")
+                logging.error("Failed to download installer.")
+        else:
+            print("Failed to log in to the backup server.")
+            logging.error("Failed to log in to the backup server.")
+    else:
+        print("UrBackup client is running.")
+        logging.info("UrBackup client is running.")
+
+def setup_backup_dirs(backup_config):
+    """Add directories specified in config to UrBackup."""
+    for directory in backup_config['directories']:
+        cmd = ["urbackupclientctl", "add-backupdir", "--path", directory]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode == 0:
+            print(f"Successfully added backup directory: {directory}")
+            logging.info(f"Successfully added backup directory: {directory}")
+        else:
+            print(f"Failed to add backup directory: {directory}. Error: {result.stderr}")
+            logging.error(f"Failed to add backup directory: {directory}. Error: {result.stderr}")
+
+def initiate_backup(backup_type, client_name):
+    """Initiate the backup process using the urbackupclientctl command with detailed options."""
+    if 'incremental' in backup_type:
+        backup_option = '-i'
+    else:
+        backup_option = '-f'
+
+    cmd = [
+        "urbackupclientctl", "start", backup_option,
+        "--non-blocking", "--client", client_name
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode == 0:
+        print(f"Successfully started {backup_type} backup for {client_name}.")
+        logging.info(f"Successfully started {backup_type} backup for {client_name}.")
+    else:
+        print(f"Failed to start {backup_type} backup for {client_name}. Error: {result.stderr}")
+        logging.error(f"Failed to start {backup_type} backup for {client_name}. Error: {result.stderr}")
+
+def backup_task(backup_config):
+    """Performs the entire backup task from checking/installing client to starting backups."""
+    check_and_install_urbackup_client(backup_config)
+    setup_backup_dirs(backup_config)
+    initiate_backup(backup_config['type'])
+    
 def start_daemon(config_path):
     global observer
     config = load_config(config_path)
     tasks = config['tasks']
     observer = Observer()
+    
     for task in tasks:
         if task['type'] == 'file-organization':
             observer.schedule(ChangeHandler(tasks), os.path.abspath(task['source']), recursive=True)
+    
+    # Start backup scheduling in a separate thread if 'backup' is defined in the config
+    if 'backup' in config:
+        backup_thread = Thread(target=backup_task, args=(config,))
+        backup_thread.start()
 
     # Register the signal handler for SIGINT
     signal.signal(signal.SIGINT, signal_handler)
 
     observer.start()
+
     with open(PID_FILE, 'w') as f:
         f.write(str(os.getpid()))
 

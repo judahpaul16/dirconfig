@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="dirconfig",
-    version="0.2.2",
+    version="0.2.3",
     author="Judah Paul",
     author_email="me@judahpaul.com",
     description="A simple directory configuration tool",

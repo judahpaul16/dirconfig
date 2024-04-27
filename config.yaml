@@ -12,3 +12,15 @@ tasks:
         destination: /images
       - extension: .pdf
         destination: /documents
+# backup:
+#   - name: Backup Important Files
+#     type: incremental-file # incremental-image, full-file, full-image
+#     schedule: daily # weekly, monthly
+#     retention: 7 # number of days to keep backups
+#     connection:
+#       server: http://your-backup-server:55414
+#       username: foo
+#       password: bar
+#     directories:
+#       - /path/to/your/important/directory
+#       - /path/to/another/important/directory
