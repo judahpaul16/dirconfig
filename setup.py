@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="dirconfig",
-    version="0.2.4",
+    version="0.2.5",
     author="Judah Paul",
     author_email="me@judahpaul.com",
     description="A simple directory configuration tool",
@@ -18,11 +18,12 @@ setup(
     python_requires='>=3.6',
     entry_points={
         "console_scripts": [
-            "dirconfig=dirconfig.main:main",
+            "dirconfig=dirconfig:main",
         ],
     },
     install_requires=[
         "PyYAML==6.0.1",
-        "watchdog==4.0.0"
+        "watchdog==4.0.0",
+        "urbackup-server-web-api-wrapper==0.11"
     ],
 )

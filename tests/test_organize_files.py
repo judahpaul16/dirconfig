@@ -1,9 +1,9 @@
-import os
-import pytest
-import tempfile
-import shutil
+from dirconfig import load_config, organize_files, start_daemon, stop_daemon, ChangeHandler
 from unittest.mock import patch
-from dirconfig.main import load_config, organize_files, start_daemon, stop_daemon, ChangeHandler
+import tempfile
+import pytest
+import shutil
+import os
 
 TEST_CONFIG = """
 tasks:
