@@ -1,10 +1,11 @@
 # dirconfig 📂
- Configure what files should be in what folders using an easy-to-read YAML config file.
 
-![PyPI](https://img.shields.io/pypi/v/dirconfig)
+[![PyPI](https://img.shields.io/pypi/v/dirconfig)](https://pypi.org/project/dirconfig/)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dirconfig)
-![PyPI - License](https://img.shields.io/pypi/l/dirconfig)
-![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/judahpaul16/dirconfig/workflow.yaml)
+[![PyPI - License](https://img.shields.io/pypi/l/dirconfig)](LICENSE)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/judahpaul16/dirconfig/workflow.yaml)](https://github.com/judahpaul16/dirconfig/actions)
+
+ Configure what files should be in what folders using an easy-to-read YAML config file.
 
 ## Features
 
@@ -60,6 +61,23 @@ To run **dirconfig** as a separate process, use the following command:
 
 ```sh
 dirconfig start &
+```
+
+### Command Line Options
+```sh
+usage: dirconfig [-h] [--config CONFIG] [--log LOG] [--pid PID] {start,stop,generate}
+
+dirconfig Daemon
+
+positional arguments:
+  {start,stop,generate}
+                        Dirconfig actions to perform
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG       Path to the configuration file
+  --log LOG             Path to the log file
+  --pid PID             Path to the PID file
 ```
 
 ### Stopping dirconfig
