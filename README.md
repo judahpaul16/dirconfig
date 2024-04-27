@@ -67,13 +67,22 @@ To initiate **dirconfig** and begin the monitoring process, use the following co
 dirconfig start
 ```
 
-This command starts **dirconfig**, which then operates in the background. It will watch the source directories specified in your `config.yml` for any changes, organizing files according to your predefined rules.
+This command starts **dirconfig**, which operates in the background. It will watch the source directories specified in your `config.yml` for any changes, organizing files according to your predefined rules.
 
-To run **dirconfig** as a separate process, use the following command:
+Alternatively, to run **dirconfig** as a separate process, use the following command:
 
 ```sh
 dirconfig start &
 ```
+
+### Stopping dirconfig
+
+To stop the **dirconfig** daemon, execute:
+
+```sh
+dirconfig stop
+```
+This command stops the background process of **dirconfig**, halting the monitoring and file organization tasks.
 
 ### Command Line Options
 ```sh
@@ -92,16 +101,6 @@ options:
   --pid PID             Path to the PID file
 ```
 
-### Stopping dirconfig
-
-To stop the **dirconfig** daemon, execute:
-
-```sh
-dirconfig stop
-```
-
-This command stops the background process of **dirconfig**, halting the monitoring and file organization tasks.
-
 ### Advanced Management
 
 For long-term operation or deployment, integrating **dirconfig** with system services or process managers can offer more graceful management, including automatic restarts, logging, and simplified start/stop operations.
@@ -115,7 +114,10 @@ For more information on the Urbackup API, please refer to these resources:
 * *[Urbackup Python API Wrapper](https://github.com/uroni/urbackup-server-python-web-api-wrapper)*
 * *[Urbackup Backend ClientCTL](https://github.com/uroni/urbackup_backend/tree/dev/clientctl)*
 
+*Important Note: For Windows the command-line tool is `urbackupclient_cmd`. Mac and Linux use `urbackupclientctl`.
+
 Command Line Options for `urbackupclientctl` are as follows:
+
 ```sh
 USAGE:
 

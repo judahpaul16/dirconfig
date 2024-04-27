@@ -17,6 +17,7 @@ observer = None
 backup_thread = None # Thread for backup scheduling
 shutdown_event = Event()  # Event to signal shutdown to backup thread
 PID_FILE = 'dirconfig.pid' # Default PID file path
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__)) # Directory of the module
 
 class ChangeHandler(FileSystemEventHandler):
     def __init__(self, tasks):
@@ -73,9 +74,15 @@ def signal_handler(signum, frame):
         if os.path.exists(PID_FILE):
             os.remove(PID_FILE)
         sys.exit(0)
+        
+def get_urbackup_command():
+    if os.name == 'nt':  # Windows
+        return 'urbackupclient_cmd'
+    else:  # Linux or macOS
+        return 'urbackupclientctl'
 
 def check_and_install_urbackup_client(backup_config):
-    stdout, stderr, returncode = subprocess.run(["urbackupclientctl", "status"], capture_output=True, text=True)
+    stdout, stderr, returncode = subprocess.run([get_urbackup_command(), "status"], capture_output=True, text=True)
     if returncode != 0:
         print("UrBackup client not running. Attempting installation...")
         logging.info("UrBackup client not running. Attempting installation...")
@@ -90,9 +97,12 @@ def check_and_install_urbackup_client(backup_config):
         if backup_server.login():
             client_name = f"{backup_config['name']}-dirconfig"
             if backup_server.download_installer(installer_filename, client_name, os_type):
-                if os.name != 'nt':
+                if os_type != 'Windows':
                     subprocess.run(["chmod", "+x", installer_filename])  # Make executable on Unix/Linux
-                subprocess.run([f"./{installer_filename}"])  # Execute installer
+                subprocess.run([os.path.join(MODULE_DIR, '{installer_filename}')])  # Execute installer
+                # Add urbackupclientctl to PATH if Windows
+                if os_type == 'Windows':
+                    subprocess.run([os.path.join(MODULE_DIR, 'add_to_path.exe')], check=True)
                 print("Installation successful.")
                 logging.info("Installation successful.")
             else:
@@ -108,7 +118,7 @@ def check_and_install_urbackup_client(backup_config):
 def setup_backup_dirs(backup_config):
     """Add directories specified in config to UrBackup."""
     for directory in backup_config['directories']:
-        cmd = ["urbackupclientctl", "add-backupdir", "--path", directory]
+        cmd = [get_urbackup_command(), "add-backupdir", "--path", directory]
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode == 0:
             print(f"Successfully added backup directory: {directory}")
@@ -125,7 +135,7 @@ def initiate_backup(backup_type, client_name):
         backup_option = '-f'
 
     cmd = [
-        "urbackupclientctl", "start", backup_option,
+        get_urbackup_command(), "start", backup_option,
         "--non-blocking", "--client", client_name
     ]
     result = subprocess.run(cmd, capture_output=True, text=True)
