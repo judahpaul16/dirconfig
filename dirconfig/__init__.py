@@ -114,7 +114,7 @@ def check_and_install_urbackup_client(backup_config):
         logging.info("UrBackup client not running. Attempting installation...")
         # Determine OS type for choosing the correct installer
         os_type = installer_os.Linux if os.name != 'nt' else installer_os.Windows
-        installer_filename = "urbackup_client_installer" + (".exe" if os_type == installer_os.Windows else "")
+        installer_filename = "urbackup_client_installer" + (".exe" if os_type == installer_os.Windows else ".sh")
         backup_server = urbackup_server(
             server_url=backup_config['connection']['server'],
             server_username=backup_config['connection']['username'],
