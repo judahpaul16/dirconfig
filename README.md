@@ -3,6 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/dirconfig)](https://pypi.org/project/dirconfig/)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dirconfig)
 [![PyPI - License](https://img.shields.io/pypi/l/dirconfig)](LICENSE)
+[![Coverage](https://coveralls.io/repos/github/judahpaul16/dirconfig/badge.svg?branch=master)](https://coveralls.io/github/judahpaul16/dirconfig?branch=master)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/judahpaul16/dirconfig/workflow.yaml)](https://github.com/judahpaul16/dirconfig/actions)
 
  Configure what files should be in what folders using an easy-to-read YAML config file.
