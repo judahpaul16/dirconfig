@@ -75,8 +75,8 @@ def signal_handler(signum, frame):
             os.remove(PID_FILE)
         sys.exit(0)
         
-def get_urbackup_command():
-    if os.name == 'nt':  # Windows
+def get_urbackup_command(os_name=None):
+    if os.name == 'nt' and os_name != 'Linux':  # Windows
         return 'urbackupclient_cmd'
     else:  # Linux or macOS
         return 'urbackupclientctl'
@@ -93,7 +93,7 @@ def add_to_path(new_path_entry):
         [Environment]::SetEnvironmentVariable("PATH", $newPath, "User");
         Write-Output 'Added to PATH'
     }}
-    """
+    """.replace('\n', ' ').replace('    ', '')
     try:
         # Execute the PowerShell command
         result = subprocess.run(["powershell", "-Command", powershell_command], capture_output=True, text=True)
@@ -107,25 +107,28 @@ def add_to_path(new_path_entry):
         print(f"An error occurred: {e}")
         logging.error(f"An error occurred: {str(e)}")
 
+def get_installer_filename(os_type):
+    return "urbackup_client_installer" + (".exe" if os_type.lower() is installer_os.Windows else ".sh")
+
 def check_and_install_urbackup_client(backup_config):
-    stdout, stderr, returncode = subprocess.run([get_urbackup_command(), "status"], capture_output=True, text=True)
-    if returncode != 0:
+    result = subprocess.run([get_urbackup_command(), "status"], capture_output=True, text=True)
+    if result.returncode != 0:
         print("UrBackup client not running. Attempting installation...")
         logging.info("UrBackup client not running. Attempting installation...")
         # Determine OS type for choosing the correct installer
-        os_type = installer_os.Linux if os.name != 'nt' else installer_os.Windows
-        installer_filename = "urbackup_client_installer" + (".exe" if os_type == installer_os.Windows else ".sh")
+        os_type = "Linux" if os.name != 'nt' else "Windows"
+        installer_filename = get_installer_filename(os_type)
         backup_server = urbackup_server(
-            server_url=backup_config['connection']['server'],
-            server_username=backup_config['connection']['username'],
-            server_password=backup_config['connection']['password']
+            url=backup_config['connection']['server'],
+            username=backup_config['connection']['username'],
+            password=backup_config['connection']['password']
         )
         if backup_server.login():
             client_name = f"{backup_config['name']}-dirconfig"
             if backup_server.download_installer(installer_filename, client_name, os_type):
-                if os_type != 'Windows':
+                if os_type != "Windows":
                     subprocess.run(["chmod", "+x", installer_filename])  # Make executable on Unix/Linux
-                subprocess.run([os.path.join(MODULE_DIR, '{installer_filename}')])  # Execute installer
+                subprocess.run([os.path.join(MODULE_DIR, installer_filename)])  # Execute installer
                 # Add urbackupclientctl to PATH if Windows
                 if os_type == 'Windows':
                     add_to_path('C:\\Program Files\\UrBackup\\')
