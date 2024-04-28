@@ -176,7 +176,7 @@ def backup_task(backup_config):
     """Performs the entire backup task from checking/installing client to starting backups."""
     check_and_install_urbackup_client(backup_config)
     setup_backup_dirs(backup_config)
-    initiate_backup(backup_config['type'])
+    initiate_backup(backup_config['type'], backup_config['name'])
     
 def start_daemon(config_path):
     global observer
