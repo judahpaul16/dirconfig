@@ -43,6 +43,18 @@ jobs:
           pip install pytest
           pytest tests/
 
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'release' || github.event_name == 'pull_request')
+    steps:
+      - uses: actions/checkout@v4
+
       - name: Bump patch version
         if: github.ref == 'refs/heads/main'
         run: |
