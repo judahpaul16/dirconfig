@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/dirconfig)](https://pypi.org/project/dirconfig/)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dirconfig)
 [![PyPI - License](https://img.shields.io/pypi/l/dirconfig)](LICENSE)
-[![Coverage](https://coveralls.io/repos/github/judahpaul16/dirconfig/badge.svg?branch=main)](https://coveralls.io/github/judahpaul16/dirconfig?branch=main)
+[![Coverage](https://coveralls.io/repos/github/judahpaul16/dirconfig/badge.svg)](https://coveralls.io/github/judahpaul16/dirconfig?branch=main)
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/judahpaul16/dirconfig/workflow.yaml)](https://github.com/judahpaul16/dirconfig/actions)
 
  Configure what files should be in what folders using an easy-to-read YAML config file.
@@ -11,7 +11,7 @@
 ## Features
 
 - [x] **File Organization**: Automatically move files based on their extension from one directory to another.
-- [x] **Automated Backups**: Set up scheduled backups for important directories using [urbackup](https://github.com/uroni/urbackup-server-python-web-api-wrapper).
+- [x] **Automated Backups**: Set up scheduled backups for important directories using [urbackup](https://www.urbackup.org/).
 - [ ] **Notification System**: Get notified regarding specific events specified in the configuration file.
 
 ## Installation
@@ -112,7 +112,7 @@ For long-term operation or deployment, integrating **dirconfig** with system ser
 
 ## Urbackup Documentation
 For more information on the Urbackup API, please refer to these resources:
-* *[Urbackup Python API Wrapper](https://github.com/uroni/urbackup-server-python-web-api-wrapper)*
+* *[Urbackup Python API Wrapper](https://github.com/judahpaul16/python-urbackup)*
 * *[Urbackup Backend ClientCTL](https://github.com/uroni/urbackup_backend/tree/dev/clientctl)*
 
 *Important Note: For Windows the command-line tool is `urbackupclient_cmd`. Mac and Linux use `urbackupclientctl`.
