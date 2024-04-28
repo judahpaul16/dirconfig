@@ -1,4 +1,4 @@
-from urbackup_api import urbackup_server, installer_os
+from urbackup import urbackup_server, installer_os
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from threading import Thread, Event

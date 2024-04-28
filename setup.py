@@ -24,6 +24,6 @@ setup(
     install_requires=[
         "PyYAML==6.0.1",
         "watchdog==4.0.0",
-        "urbackup-server-web-api-wrapper==0.11"
+        "python-urbackup"
     ],
 )
